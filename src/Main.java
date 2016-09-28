@@ -3,14 +3,14 @@ import java.util.Scanner;
 
 public class Main {
     //  Database credentials
-    static String USER;
-    static String PASS;
-    static String DBNAME;
+    private static String USER;
+    private static String PASS;
+    private static String DBNAME;
 
-    static final String displayFormat="%-5s%-15s%-15s%-15s\n";
+    private static final String displayFormat="%-5s%-15s%-15s%-15s\n";
     // JDBC driver name and database URL
     static final String JDBC_DRIVER = "org.apache.derby.jdbc.ClientDriver";
-    static String DB_URL = "jdbc:derby://localhost:1527/";
+    private static String DB_URL = "jdbc:derby://localhost:1527/";
 
     /**
      * Takes the input string and outputs "N/A" if the string is empty or null.
