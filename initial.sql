@@ -20,9 +20,9 @@ create table Book (
     YearPublished int,
     NumberPages int,
     constraint Book_WritingGroup_fk01 foreign key (GroupName) 
-    references "WritingGroup" (GroupName),
+    references WritingGroup (GroupName),
     constraint Book_Publishers_fk01 foreign key (PublisherName)
-    references "Publisher" (PublisherName),
+    references Publisher (PublisherName),
     constraint Book_pk primary key (GroupName, BookTitle),
     constraint Book_uk01 unique (BookTitle, PublisherName)
 );
