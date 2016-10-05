@@ -1,6 +1,8 @@
 import java.sql.*;
 import java.util.Scanner;
 import org.apache.derby.jdbc.ClientDriver;
+import java.util.InputMismatchException;
+
 public class Main {
     //  Database credentials
     private static String USER;
@@ -48,6 +50,7 @@ public class Main {
             System.out.println("Connecting to database...");
             conn = DriverManager.getConnection(DB_URL);
 
+            startMenu(conn, stmt);
             //STEP 4: Execute a query
             System.out.println("Creating statement...");
             stmt = conn.createStatement();
@@ -87,5 +90,61 @@ public class Main {
             }//end finally try
         }//end try
         System.out.println("Goodbye!");
+    }
+
+    static void startMenu(Connection conn, Statement stmt) {
+        Scanner input = new Scanner(System.in);
+        int choice = -1;
+        System.out.println(" ----------------------------------------------------------");
+        System.out.println("| 'View all Writing Groups'                            [1] |");
+        System.out.println("| 'View all data for a group specified by a user'      [2] |");
+        System.out.println("| 'View all Publishers'                                [3] |");
+        System.out.println("| 'View all data for a publisher specified by a user'  [4] |");
+        System.out.println("| 'View all book titles'                               [5] |");
+        System.out.println("| 'View all data for a book specified by a user'       [6] |");
+        System.out.println("| 'Insert a new book'                                  [7] |");
+        System.out.println("| 'Insert a new publisher and update all book          [8] |");
+        System.out.println("|  published by one publisher to be published              |");
+        System.out.println("|  by the new publisher'                                   |");
+        System.out.println("|                                                          |");
+        System.out.println(" ----------------------------------------------------------");
+        System.out.println("|         - Menu will exit on any other input -            |");
+        System.out.println(" ----------------------------------------------------------");
+        try {
+            choice = input.nextInt();
+
+            switch(choice) {
+                case 1 :
+
+                    break;
+                case 2 :
+
+                    break;
+                case 3 :
+
+                    break;
+                case 4 :
+
+                    break;
+                case 5 :
+
+                    break;
+                case 6 :
+
+                    break;
+                case 7 :
+
+                    break;
+                case 8 :
+
+                    break;
+                default:
+
+                    break;
+
+            }
+        } catch(InputMismatchException ex) {
+            System.out.println("Program exiting...");
+        }
     }
 }

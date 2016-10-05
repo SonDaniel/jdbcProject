@@ -26,6 +26,7 @@ create table Book (
     constraint Book_pk primary key (GroupName, BookTitle),
     constraint Book_uk01 unique (BookTitle, PublisherName)
 );
+
 insert into WritingGroup(GroupName,HeadWriter,YearFormed,Subject)
 VALUES ('WaterWorld','John Ham',1959,'Engrish'),
        ('FireUniverse','John Cena',1988,'Wrestling'),
@@ -40,6 +41,6 @@ VALUES ('Song','271 New San Fernando','210-980-1809','Song@song.com'),
 insert into Book (GroupName, BookTitle, PublisherName, YearPublished, NumberPages)
 VALUES ('WaterWorld','Harambe','Song',1978,370),
        ('FireUniverse','The Great Ape','Song',1965,900),
-       ('Earth Galaxy','Chef Boi Are D','Hue',1980,500),
+       ('EarthGalaxy','Chef Boi Are D','Hue Internation',1980,500),
        ('WindPlanet','Translating Ape','Fardation',2011,9000);
        
