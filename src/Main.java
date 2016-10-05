@@ -1,6 +1,6 @@
 import java.sql.*;
 import java.util.Scanner;
-import org.apache.derby.jdbc.ClientDriver;
+//import org.apache.derby.jdbc.ClientDriver;
 import java.util.InputMismatchException;
 
 public class Main {
@@ -51,22 +51,7 @@ public class Main {
             conn = DriverManager.getConnection(DB_URL);
 
             startMenu(conn, stmt);
-            //STEP 4: Execute a query
-            System.out.println("Creating statement...");
-            stmt = conn.createStatement();
-            String sql;
-            sql = "SELECT * FROM WritingGroup";
-            ResultSet rs = stmt.executeQuery(sql);
 
-            //STEP 5: Extract data from result set
-            System.out.printf(displayFormat, "GroupName", "HeadWriter", "YearFormed", "Subject");
-            while (rs.next()) {
-                System.out.println("hmm");
-            }
-            //STEP 6: Clean-up environment
-            rs.close();
-            stmt.close();
-            conn.close();
         } catch (SQLException se) {
             //Handle errors for JDBC
             se.printStackTrace();
@@ -95,56 +80,93 @@ public class Main {
     static void startMenu(Connection conn, Statement stmt) {
         Scanner input = new Scanner(System.in);
         int choice = -1;
-        System.out.println(" ----------------------------------------------------------");
-        System.out.println("| 'View all Writing Groups'                            [1] |");
-        System.out.println("| 'View all data for a group specified by a user'      [2] |");
-        System.out.println("| 'View all Publishers'                                [3] |");
-        System.out.println("| 'View all data for a publisher specified by a user'  [4] |");
-        System.out.println("| 'View all book titles'                               [5] |");
-        System.out.println("| 'View all data for a book specified by a user'       [6] |");
-        System.out.println("| 'Insert a new book'                                  [7] |");
-        System.out.println("| 'Insert a new publisher and update all book          [8] |");
-        System.out.println("|  published by one publisher to be published              |");
-        System.out.println("|  by the new publisher'                                   |");
-        System.out.println("|                                                          |");
-        System.out.println(" ----------------------------------------------------------");
-        System.out.println("|         - Menu will exit on any other input -            |");
-        System.out.println(" ----------------------------------------------------------");
-        try {
-            choice = input.nextInt();
 
-            switch(choice) {
-                case 1 :
+        do {
+            ResultSet rs = null;
+            System.out.println(" ----------------------------------------------------------");
+            System.out.println("| 'View all Writing Groups'                            [1] |");
+            System.out.println("| 'View all data for a group specified by a user'      [2] |");
+            System.out.println("| 'View all Publishers'                                [3] |");
+            System.out.println("| 'View all data for a publisher specified by a user'  [4] |");
+            System.out.println("| 'View all book titles'                               [5] |");
+            System.out.println("| 'View all data for a book specified by a user'       [6] |");
+            System.out.println("| 'Insert a new book'                                  [7] |");
+            System.out.println("| 'Insert a new publisher and update all book          [8] |");
+            System.out.println("|  published by one publisher to be published              |");
+            System.out.println("|  by the new publisher'                                   |");
+            System.out.println("|                                                          |");
+            System.out.println(" ----------------------------------------------------------");
+            System.out.println("|            - Menu will exit on input [0] -               |");
+            System.out.println(" ----------------------------------------------------------");
+            try {
+                choice = input.nextInt();
 
-                    break;
-                case 2 :
+                switch(choice) {
+                    case 1 :
+                        try {
+                            //STEP 4: Execute a query
+                            System.out.println("Creating statement...");
+                            stmt = conn.createStatement();
+                            String sql;
+                            sql = "SELECT * FROM WritingGroup";
+                            rs = stmt.executeQuery(sql);
 
-                    break;
-                case 3 :
+                            //STEP 5: Extract data from result set
+                            System.out.printf(displayFormat, "GroupName", "HeadWriter", "YearFormed", "Subject");
+                            while (rs.next()) {
+                                //Retrieve by column name
+                                String groupName = rs.getString("GroupName");
+                                String headWriter = rs.getString("HeadWriter");
+                                String yearFormed = rs.getString("YearFormed");
+                                String subject = rs.getString("Subject");
 
-                    break;
-                case 4 :
+                                //Display values
+                                System.out.printf(displayFormat,
+                                        dispNull(groupName), dispNull(headWriter), dispNull(yearFormed), dispNull(subject));
+                            }
+                        } catch(SQLException ex) {
+                            ex.printStackTrace();
+                        } finally {
+                            //finally block used to close resources
+                            try {
+                                if (rs != null) {
+                                    rs.close();
+                                }
+                            } catch (SQLException se2) {
+                            }// nothing we can do
+                        }
 
-                    break;
-                case 5 :
+                        break;
+                    case 2 :
 
-                    break;
-                case 6 :
+                        break;
+                    case 3 :
 
-                    break;
-                case 7 :
+                        break;
+                    case 4 :
 
-                    break;
-                case 8 :
+                        break;
+                    case 5 :
 
-                    break;
-                default:
+                        break;
+                    case 6 :
 
-                    break;
+                        break;
+                    case 7 :
 
+                        break;
+                    case 8 :
+
+                        break;
+                    default:
+
+                        break;
+
+                }
+            } catch(InputMismatchException ex) {
+                System.out.println("Input is invalid. Try again.");
             }
-        } catch(InputMismatchException ex) {
-            System.out.println("Program exiting...");
-        }
+        } while(choice != 0);
+
     }
 }
