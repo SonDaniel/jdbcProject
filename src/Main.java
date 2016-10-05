@@ -9,7 +9,7 @@ public class Main {
     private static String PASS;
     private static String DBNAME;
 
-    private static final String displayFormat="%-5s%-15s%-15s%-15s\n";
+    private static final String displayFormat="%-20s%-20s%-20s%-20s\n";
     // JDBC driver name and database URL
     static final String JDBC_DRIVER = "org.apache.derby.jdbc.ClientDriver";
     private static String DB_URL = "jdbc:derby://localhost:1527/";
@@ -110,9 +110,13 @@ public class Main {
                             String sql;
                             sql = "SELECT * FROM WritingGroup";
                             rs = stmt.executeQuery(sql);
+                            ResultSetMetaData rsmd = rs.getMetaData();
+                            int numberOfColumns = rsmd.getColumnCount();
 
-                            //STEP 5: Extract data from result set
-                            System.out.printf(displayFormat, "GroupName", "HeadWriter", "YearFormed", "Subject");
+                            for(int ii = 1; ii <= numberOfColumns; ii++) {
+                                System.out.print(rsmd.getColumnName(ii) + "         ");
+                            }
+                            System.out.println("");
                             while (rs.next()) {
                                 //Retrieve by column name
                                 String groupName = rs.getString("GroupName");
@@ -141,6 +145,42 @@ public class Main {
 
                         break;
                     case 3 :
+                        try {
+                            System.out.println("Creating statement...");
+                            stmt = conn.createStatement();
+                            String sql;
+                            sql = "SELECT * FROM Publisher";
+                            rs = stmt.executeQuery(sql);
+
+                            ResultSetMetaData rsmd = rs.getMetaData();
+                            int numberOfColumns = rsmd.getColumnCount();
+
+                            for(int ii = 1; ii <= numberOfColumns; ii++) {
+                                System.out.print(rsmd.getColumnName(ii) + "      ");
+                            }
+                            System.out.println("");
+                            while (rs.next()) {
+                                //Retrieve by column name
+                                String publisherName = rs.getString(rsmd.getColumnName(1));
+                                String publisherAddress = rs.getString(rsmd.getColumnName(2));
+                                String publisherPhone = rs.getString(rsmd.getColumnName(3));
+                                String publisherEmail = rs.getString(rsmd.getColumnName(4));
+
+                                //Display values
+                                System.out.printf(displayFormat,
+                                        dispNull(publisherName), dispNull(publisherAddress), dispNull(publisherPhone), dispNull(publisherEmail));
+                            }
+                        } catch(SQLException ex) {
+                            ex.printStackTrace();
+                        } finally {
+                            //finally block used to close resources
+                            try {
+                                if (rs != null) {
+                                    rs.close();
+                                }
+                            } catch (SQLException se2) {
+                            }// nothing we can do
+                        }
 
                         break;
                     case 4 :
