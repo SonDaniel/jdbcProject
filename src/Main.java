@@ -9,7 +9,6 @@ public class Main {
     private static String PASS;
     private static String DBNAME;
 
-    private static final String displayFormat="%-20s%-20s%-20s%-20s\n";
     // JDBC driver name and database URL
     static final String JDBC_DRIVER = "org.apache.derby.jdbc.ClientDriver";
     private static String DB_URL = "jdbc:derby://localhost:1527/";
@@ -94,6 +93,7 @@ public class Main {
             System.out.println("| 'Insert a new publisher and update all book          [8] |");
             System.out.println("|  published by one publisher to be published              |");
             System.out.println("|  by the new publisher'                                   |");
+            System.out.println("| 'Remove a book specified by a user'                  [9] |");
             System.out.println("|                                                          |");
             System.out.println(" ----------------------------------------------------------");
             System.out.println("|            - Menu will exit on input [0] -               |");
@@ -164,8 +164,8 @@ public class Main {
                                 String subject = rs.getString("Subject");
 
                                 //Display values
-                                System.out.printf(displayFormat,
-                                        dispNull(groupName), dispNull(headWriter), dispNull(yearFormed), dispNull(subject));
+                                System.out.printf("%-20s%-20s%-20s%-20s\n",
+                                        dispNull(groupName), dispNull(headWriter), dispNull(yearFormed), dispNull(subject) , dispNull(""));
                             }
                         } catch(SQLException ex) {
                             ex.printStackTrace();
@@ -216,14 +216,54 @@ public class Main {
 
                         break;
                     case 4 :
+                        try {
+                            //STEP 4: Execute a query
+                            String sql;
+                            sql = "SELECT * FROM Publisher where PublisherName = ?";
+                            PreparedStatement statement = conn.prepareStatement(sql);
+                            System.out.print("Enter a Publisher's name: ");
+                            input.nextLine();
+                            String userInput = input.nextLine();
+                            statement.setString(1, userInput);
+                            rs = statement.executeQuery();
+                            ResultSetMetaData rsmd = rs.getMetaData();
+                            int numberOfColumns = rsmd.getColumnCount();
+
+                            for(int ii = 1; ii <= numberOfColumns; ii++) {
+                                System.out.print(rsmd.getColumnName(ii) + "         ");
+                            }
+
+                            System.out.println("");
+                            while (rs.next()) {
+                                //Retrieve by column name
+                                String publisherName = rs.getString(rsmd.getColumnName(1));
+                                String publisherAddress = rs.getString(rsmd.getColumnName(2));
+                                String publisherPhone = rs.getString(rsmd.getColumnName(3));
+                                String publisherEmail = rs.getString(rsmd.getColumnName(4));
+
+                                //Display values
+                                System.out.printf("%-20s%-20s%-20s%-20s\n",
+                                        dispNull(publisherName), dispNull(publisherAddress), dispNull(publisherPhone), dispNull(publisherEmail));
+                            }
+
+                        } catch(SQLException ex) {
+                            ex.printStackTrace();
+                        } finally {
+                            //finally block used to close resources
+                            try {
+                                if (rs != null) {
+                                    rs.close();
+                                }
+                            } catch (SQLException se2) {
+                            }// nothing we can do
+                        }
 
                         break;
                     case 5 :
                         try {
-                            System.out.println("Creating statement...");
                             stmt = conn.createStatement();
                             String sql;
-                            sql = "SELECT * FROM Publisher";
+                            sql = "SELECT bookTitle FROM Book";
                             rs = stmt.executeQuery(sql);
 
                             ResultSetMetaData rsmd = rs.getMetaData();
@@ -235,14 +275,10 @@ public class Main {
                             System.out.println("");
                             while (rs.next()) {
                                 //Retrieve by column name
-                                String publisherName = rs.getString(rsmd.getColumnName(1));
-                                String publisherAddress = rs.getString(rsmd.getColumnName(2));
-                                String publisherPhone = rs.getString(rsmd.getColumnName(3));
-                                String publisherEmail = rs.getString(rsmd.getColumnName(4));
+                                String bookTitles = rs.getString(rsmd.getColumnName(1));
 
                                 //Display values
-                                System.out.printf(displayFormat,
-                                        dispNull(publisherName), dispNull(publisherAddress), dispNull(publisherPhone), dispNull(publisherEmail));
+                                System.out.println(bookTitles);
                             }
                         } catch(SQLException ex) {
                             ex.printStackTrace();
@@ -256,13 +292,56 @@ public class Main {
                             }// nothing we can do
                         }
                         break;
-                    case 6 :
+                    case 6:
+                        try {
+                            //STEP 4: Execute a query
+                            String sql;
+                            sql = "SELECT * FROM Book where BookTitle = ?";
+                            PreparedStatement statement = conn.prepareStatement(sql);
+                            System.out.print("Enter a Book Title: ");
+                            input.nextLine();
+                            String userInput = input.nextLine();
+                            statement.setString(1, userInput);
+                            rs = statement.executeQuery();
+                            ResultSetMetaData rsmd = rs.getMetaData();
+                            int numberOfColumns = rsmd.getColumnCount();
 
+                            for(int ii = 1; ii <= numberOfColumns; ii++) {
+                                System.out.print(rsmd.getColumnName(ii) + "         ");
+                            }
+
+                            System.out.println("");
+                            while (rs.next()) {
+                                //Retrieve by column name
+                                String groupName = rs.getString(rsmd.getColumnName(1));
+                                String bookTitle = rs.getString(rsmd.getColumnName(2));
+                                String publisherName = rs.getString(rsmd.getColumnName(3));
+                                String yearPublished = rs.getString(rsmd.getColumnName(4));
+                                int numPages = rs.getInt(rsmd.getColumnName(5));
+
+                                //Display values
+                                System.out.printf("%-20s%-20s%-20s%-20s%-20s\n",
+                                        dispNull(groupName), dispNull(bookTitle), dispNull(publisherName), dispNull(yearPublished), dispNull(Integer.toString(numPages)));
+                            }
+                        } catch(SQLException ex) {
+                            ex.printStackTrace();
+                        } finally {
+                            //finally block used to close resources
+                            try {
+                                if (rs != null) {
+                                    rs.close();
+                                }
+                            } catch (SQLException se2) {
+                            }// nothing we can do
+                        }
                         break;
                     case 7 :
 
                         break;
                     case 8 :
+
+                        break;
+                    case 9 :
 
                         break;
                     default:
