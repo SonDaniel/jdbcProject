@@ -99,17 +99,56 @@ public class Main {
             System.out.println("|            - Menu will exit on input [0] -               |");
             System.out.println(" ----------------------------------------------------------");
             try {
+                System.out.print("Choice: ");
                 choice = input.nextInt();
 
+                System.out.println("Creating statement...");
                 switch(choice) {
                     case 1 :
                         try {
                             //STEP 4: Execute a query
-                            System.out.println("Creating statement...");
                             stmt = conn.createStatement();
                             String sql;
-                            sql = "SELECT * FROM WritingGroup";
+                            sql = "SELECT GroupName FROM WritingGroup";
                             rs = stmt.executeQuery(sql);
+                            ResultSetMetaData rsmd = rs.getMetaData();
+                            int numberOfColumns = rsmd.getColumnCount();
+
+                            for(int ii = 1; ii <= numberOfColumns; ii++) {
+                                System.out.print(rsmd.getColumnName(ii) + "         ");
+                            }
+                            System.out.println("");
+                            while (rs.next()) {
+                                //Retrieve by column name
+                                String groupName = rs.getString("GroupName");
+
+                                //Display values
+                                System.out.println(groupName);
+                            }
+                        } catch(SQLException ex) {
+                            ex.printStackTrace();
+                        } finally {
+                            //finally block used to close resources
+                            try {
+                                if (rs != null) {
+                                    rs.close();
+                                }
+                            } catch (SQLException se2) {
+                            }// nothing we can do
+                        }
+
+                        break;
+                    case 2 : //view all data for a specific user
+                        try {
+                            //STEP 4: Execute a query
+                            String sql;
+                            sql = "SELECT * FROM WritingGroup where GroupName = ?";
+                            PreparedStatement statement = conn.prepareStatement(sql);
+                            System.out.print("Enter a group name: ");
+                            input.nextLine();
+                            String userInput = input.nextLine();
+                            statement.setString(1, userInput);
+                            rs = statement.executeQuery();
                             ResultSetMetaData rsmd = rs.getMetaData();
                             int numberOfColumns = rsmd.getColumnCount();
 
@@ -141,10 +180,45 @@ public class Main {
                         }
 
                         break;
-                    case 2 :
+                    case 3 :
+                        try {
+                            System.out.println("Creating statement...");
+                            stmt = conn.createStatement();
+                            String sql;
+                            sql = "SELECT PublisherName FROM Publisher";
+                            rs = stmt.executeQuery(sql);
+
+                            ResultSetMetaData rsmd = rs.getMetaData();
+                            int numberOfColumns = rsmd.getColumnCount();
+
+                            for(int ii = 1; ii <= numberOfColumns; ii++) {
+                                System.out.print(rsmd.getColumnName(ii) + "      ");
+                            }
+                            System.out.println("");
+                            while (rs.next()) {
+                                //Retrieve by column name
+                                String publisherName = rs.getString(rsmd.getColumnName(1));
+
+                                //Display values
+                                System.out.println(publisherName);
+                            }
+                        } catch(SQLException ex) {
+                            ex.printStackTrace();
+                        } finally {
+                            //finally block used to close resources
+                            try {
+                                if (rs != null) {
+                                    rs.close();
+                                }
+                            } catch (SQLException se2) {
+                            }// nothing we can do
+                        }
 
                         break;
-                    case 3 :
+                    case 4 :
+
+                        break;
+                    case 5 :
                         try {
                             System.out.println("Creating statement...");
                             stmt = conn.createStatement();
@@ -181,13 +255,6 @@ public class Main {
                             } catch (SQLException se2) {
                             }// nothing we can do
                         }
-
-                        break;
-                    case 4 :
-
-                        break;
-                    case 5 :
-
                         break;
                     case 6 :
 
@@ -205,6 +272,8 @@ public class Main {
                 }
             } catch(InputMismatchException ex) {
                 System.out.println("Input is invalid. Try again.");
+                input.nextLine(); //resetting input to get next input
+
             }
         } while(choice != 0);
 
