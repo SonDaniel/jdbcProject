@@ -336,7 +336,35 @@ public class Main {
                         }
                         break;
                     case 7 :
+                        try{
+                            String sql;
+                            sql = "insert into Book (GroupName, BookTitle, PublisherName, YearPublished, NumberPages) VALUES( ?, ?, ?, ?, ?);";
+                            PreparedStatement statement = conn.prepareStatement(sql);
+                            System.out.print("Please create a book");
+                            System.out.println("Enter your Book Group Name");
+                            String GroupName = input.next();
+                            System.out.println("Please input the Title of the Book");
+                            String BookTItle = input.next();
+                            System.out.println("Please input the Publisher Name");
+                            String PublisherName = input.next();
+                            System.out.println("Please input the Year of Publish");
+                            String YearPublished = input.next();
+                            System.out.println("Please input the Number of Pages");
+                            String NumberPages = input.next();
+                            statement.setString(1, GroupName);
+                            statement.setString(2, BookTItle);
+                            statement.setString(3, PublisherName);
+                            statement.setString(4, YearPublished);
+                            statement.setString(5, NumberPages);
+                            statement.executeUpdate();
+                            statement.close();
+                            System.out.println(BookTItle + " Has been inserted." );
 
+
+                        }
+                        catch(SQLException ex) {
+                            ex.printStackTrace();
+                        }
                         break;
                     case 8 :
 
