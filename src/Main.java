@@ -316,12 +316,12 @@ public class Main {
                                 String groupName = rs.getString(rsmd.getColumnName(1));
                                 String bookTitle = rs.getString(rsmd.getColumnName(2));
                                 String publisherName = rs.getString(rsmd.getColumnName(3));
-                                String yearPublished = rs.getString(rsmd.getColumnName(4));
+                                int yearPublished = rs.getInt(rsmd.getColumnName(4));
                                 int numPages = rs.getInt(rsmd.getColumnName(5));
 
                                 //Display values
                                 System.out.printf("%-20s%-20s%-20s%-20s%-20s\n",
-                                        dispNull(groupName), dispNull(bookTitle), dispNull(publisherName), dispNull(yearPublished), dispNull(Integer.toString(numPages)));
+                                        dispNull(groupName), dispNull(bookTitle), dispNull(publisherName), dispNull(Integer.toString(yearPublished)), dispNull(Integer.toString(numPages)));
                             }
                         } catch(SQLException ex) {
                             ex.printStackTrace();
@@ -336,29 +336,109 @@ public class Main {
                         }
                         break;
                     case 7 :
+                        // have to check year is valid, have to check valid group name
+                        //check publisher name
                         try{
                             String sql;
                             sql = "insert into Book (GroupName, BookTitle, PublisherName, YearPublished, NumberPages) VALUES( ?, ?, ?, ?, ?);";
+                            String sql2;
+                            sql2 = "Select GroupName, YearFormed from WritingGroup where GroupName = ?";
+                            String sql3;
+                            sql3  = "Select PublisherName from Pubslisher where PublisherName = ?";
+                            PreparedStatement statement3 = conn.prepareStatement(sql3);
+                            PreparedStatement statement2 = conn.prepareStatement(sql2);
                             PreparedStatement statement = conn.prepareStatement(sql);
                             System.out.print("Please create a book");
                             System.out.println("Enter your Book Group Name");
                             String GroupName = input.next();
+                            statement2.setString(1, GroupName);
+                            //checking group name is valid
+
                             System.out.println("Please input the Title of the Book");
                             String BookTItle = input.next();
                             System.out.println("Please input the Publisher Name");
                             String PublisherName = input.next();
+                            statement3.setString(1,PublisherName);
+                            //checking publisher name is valid
                             System.out.println("Please input the Year of Publish");
-                            String YearPublished = input.next();
+                            int YearPublished = 0;
+                            try {
+                                YearPublished = input.nextInt();
+                            }
+                            catch(InputMismatchException e){
+                                System.out.println("Not an integer");
+                                startMenu(conn, stmt);
+                            }
+
                             System.out.println("Please input the Number of Pages");
-                            String NumberPages = input.next();
-                            statement.setString(1, GroupName);
-                            statement.setString(2, BookTItle);
-                            statement.setString(3, PublisherName);
-                            statement.setString(4, YearPublished);
-                            statement.setString(5, NumberPages);
-                            statement.executeUpdate();
-                            statement.close();
-                            System.out.println(BookTItle + " Has been inserted." );
+                            int NumberPages = 0;
+                            try {
+                                NumberPages = input.nextInt();
+                            }
+                            catch(InputMismatchException e){
+                                System.out.println("Please input the Number of Pages");
+                            }
+                            ResultSet rs2 = statement3.executeQuery();
+                            ResultSetMetaData rsmd2 = rs2.getMetaData();
+                            while(rs2.next()) {
+                                try {
+                                    String pubname = rs2.getString(rsmd2.getColumnName(1));
+                                } catch (SQLException e) {
+                                    System.out.println("bad Publisher Name");
+                                    e.printStackTrace();
+                                } finally {
+                                    //finally block used to close resources
+                                    try {
+                                        if (rs != null) {
+                                            rs.close();
+                                        }
+                                    } catch (SQLException se2) {
+                                    }
+                                }
+                            }
+                            rs = statement2.executeQuery();
+                            ResultSetMetaData rsmd = rs.getMetaData();
+                            while (rs.next()) {
+                                //Retrieve by column name
+                                try {
+
+                                    String groupName = rs.getString(rsmd.getColumnName(1));
+                                    int yearformed = rs.getInt(rsmd.getColumnName(2));
+                                    if(groupName != GroupName){
+                                        System.out.println("bad group name");
+                                        break;
+                                    }
+                                    if(YearPublished >= yearformed ){
+                                        statement.setString(1, GroupName);
+                                        statement.setString(2, BookTItle);
+                                        statement.setString(3, PublisherName);
+                                        statement.setInt(4, YearPublished);
+                                        statement.setInt(5, NumberPages);
+                                        statement.executeUpdate();
+                                        statement.close();
+                                        System.out.println(BookTItle + " Has been inserted." );
+                                    }
+                                    else{
+                                        System.out.println("bad year");
+                                        YearPublished = yearformed;
+                                    }
+                                }
+                                catch(SQLException e){
+                                    System.out.println("bad group name");
+                                    e.printStackTrace();
+                                }
+                                finally {
+                                    //finally block used to close resources
+                                    try {
+                                        if (rs != null) {
+                                            rs.close();
+                                        }
+                                    } catch (SQLException se2) {
+                                    }// nothing we can do
+                                }
+                            }
+
+
 
 
                         }
@@ -367,6 +447,7 @@ public class Main {
                         }
                         break;
                     case 8 :
+
 
                         break;
                     case 9 :
