@@ -115,7 +115,7 @@ public class Main {
                             int numberOfColumns = rsmd.getColumnCount();
 
                             for(int ii = 1; ii <= numberOfColumns; ii++) {
-                                System.out.print(rsmd.getColumnName(ii) + "         ");
+                                System.out.printf("%-20s",rsmd.getColumnName(ii));
                             }
                             System.out.println("");
                             while (rs.next()) {
@@ -153,7 +153,7 @@ public class Main {
                             int numberOfColumns = rsmd.getColumnCount();
 
                             for(int ii = 1; ii <= numberOfColumns; ii++) {
-                                System.out.print(rsmd.getColumnName(ii) + "         ");
+                                System.out.printf("%-20s",rsmd.getColumnName(ii));
                             }
                             System.out.println("");
                             while (rs.next()) {
@@ -192,7 +192,7 @@ public class Main {
                             int numberOfColumns = rsmd.getColumnCount();
 
                             for(int ii = 1; ii <= numberOfColumns; ii++) {
-                                System.out.print(rsmd.getColumnName(ii) + "      ");
+                                System.out.printf("%-20s",rsmd.getColumnName(ii));
                             }
                             System.out.println("");
                             while (rs.next()) {
@@ -230,7 +230,7 @@ public class Main {
                             int numberOfColumns = rsmd.getColumnCount();
 
                             for(int ii = 1; ii <= numberOfColumns; ii++) {
-                                System.out.print(rsmd.getColumnName(ii) + "         ");
+                                System.out.printf("%-20s",rsmd.getColumnName(ii));
                             }
 
                             System.out.println("");
@@ -270,7 +270,7 @@ public class Main {
                             int numberOfColumns = rsmd.getColumnCount();
 
                             for(int ii = 1; ii <= numberOfColumns; ii++) {
-                                System.out.print(rsmd.getColumnName(ii) + "      ");
+                                System.out.printf("%-20s",rsmd.getColumnName(ii));
                             }
                             System.out.println("");
                             while (rs.next()) {
@@ -307,7 +307,7 @@ public class Main {
                             int numberOfColumns = rsmd.getColumnCount();
 
                             for(int ii = 1; ii <= numberOfColumns; ii++) {
-                                System.out.print(rsmd.getColumnName(ii) + "         ");
+                                System.out.printf("%-20s",rsmd.getColumnName(ii));
                             }
 
                             System.out.println("");
@@ -340,11 +340,11 @@ public class Main {
                         //check publisher name
                         try{
                             String sql;
-                            sql = "insert into Book (GroupName, BookTitle, PublisherName, YearPublished, NumberPages) VALUES( ?, ?, ?, ?, ?);";
+                            sql = "insert into Book (GroupName, BookTitle, PublisherName, YearPublished, NumberPages) VALUES( ?, ?, ?, ?, ?)";
                             String sql2;
                             sql2 = "Select GroupName, YearFormed from WritingGroup where GroupName = ?";
                             String sql3;
-                            sql3  = "Select PublisherName from Pubslisher where PublisherName = ?";
+                            sql3  = "Select PublisherName from Publisher where PublisherName = ?";
                             PreparedStatement statement3 = conn.prepareStatement(sql3);
                             PreparedStatement statement2 = conn.prepareStatement(sql2);
                             PreparedStatement statement = conn.prepareStatement(sql);
@@ -355,7 +355,7 @@ public class Main {
                             //checking group name is valid
 
                             System.out.println("Please input the Title of the Book");
-                            String BookTItle = input.next();
+                            String BookTitle = input.next();
                             System.out.println("Please input the Publisher Name");
                             String PublisherName = input.next();
                             statement3.setString(1,PublisherName);
@@ -410,13 +410,13 @@ public class Main {
                                     }
                                     if(YearPublished >= yearformed ){
                                         statement.setString(1, GroupName);
-                                        statement.setString(2, BookTItle);
+                                        statement.setString(2, BookTitle);
                                         statement.setString(3, PublisherName);
                                         statement.setInt(4, YearPublished);
                                         statement.setInt(5, NumberPages);
                                         statement.executeUpdate();
                                         statement.close();
-                                        System.out.println(BookTItle + " Has been inserted." );
+                                        System.out.println(BookTitle + " Has been inserted." );
                                     }
                                     else{
                                         System.out.println("bad year");
@@ -437,10 +437,6 @@ public class Main {
                                     }// nothing we can do
                                 }
                             }
-
-
-
-
                         }
                         catch(SQLException ex) {
                             ex.printStackTrace();
@@ -451,7 +447,48 @@ public class Main {
 
                         break;
                     case 9 :
+                        try {
+                            stmt = conn.createStatement();
+                            String sql = "Select BookTitle, groupname from Book";
+                            rs = stmt.executeQuery(sql);
 
+                            ResultSetMetaData rsmd = rs.getMetaData();
+                            int numberOfColumns = rsmd.getColumnCount();
+
+                            for(int ii = 1; ii <= numberOfColumns; ii++) {
+                                System.out.printf("%-20s",rsmd.getColumnName(ii));
+                            }
+                            System.out.println("");
+                            while (rs.next()) {
+                                //Retrieve by column name
+                                String bookTitles = rs.getString(rsmd.getColumnName(1));
+                                String groupName = rs.getString(rsmd.getColumnName(2));
+                                //Display values
+                                System.out.printf("%-20s%-20s\n",bookTitles,groupName);
+                            }
+                            System.out.println("Please select the bookTitle and groupName associated to that book to remove.");
+                            System.out.print("Book Title: ");
+                            String bookChoice = input.next();
+                            System.out.print("Group Name associated with that book: ");
+                            String groupChoice = input.next();
+                            String sql2 = "Delete from book where booktitle = ? and groupname = ?";
+                            PreparedStatement statement = conn.prepareStatement(sql2);
+                            statement.setString(1, bookChoice);
+                            statement.setString(2, groupChoice);
+                            statement.executeUpdate(); //runs command to execute
+                            statement.close();
+                            System.out.println("Book has been deleted");
+                        } catch(SQLException ex) {
+                            ex.printStackTrace();
+                        } finally {
+                            //finally block used to close resources
+                            try {
+                                if (rs != null) {
+                                    rs.close();
+                                }
+                            } catch (SQLException se2) {
+                            }// nothing we can do
+                        }
                         break;
                     default:
 

@@ -43,4 +43,7 @@ VALUES ('WaterWorld','Harambe','Song',1978,370),
        ('FireUniverse','The Great Ape','Song',1965,900),
        ('EarthGalaxy','Chef Boi Are D','Hue Internation',1980,500),
        ('WindPlanet','Translating Ape','Fardation',2011,9000);
+
+insert into Book (GroupName, BookTitle, PublisherName, YearPublished, NumberPages)
+values ('EarthGalaxy','Harambe', 'Fardation', 2016, 1);
        
