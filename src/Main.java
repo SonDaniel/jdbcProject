@@ -443,7 +443,44 @@ public class Main {
                         }
                         break;
                     case 8 :
-
+                        try{
+                            String sql = "Update Publishers set PublisherName = ?, PublisherAddress = ?, PublisherPhone = ?, PublisherEmail = ? WHERE PublisherName = ?";
+                            String sql2 = "Update Book set PublisherName = ? WHERE PublisherName = ?";
+                            PreparedStatement statement = conn.prepareStatement(sql);
+                            PreparedStatement statement1 = conn.prepareStatement(sql2);
+                            System.out.println("Please enter the publisher to be updated");
+                            String oriPub = input.next();
+                            System.out.println("Finding publisher...");
+                            System.out.println("Please enter the new publisher:");
+                            System.out.println("Enter name: ");
+                            String newPub = input.next();
+                            statement1.setString(1,newPub);
+                            statement1.setString(2,oriPub);
+                            System.out.println("Enter Publisher Address: ");
+                            String address = input.next();
+                            System.out.println("Enter Phone: ");
+                            String phone = input.next();
+                            System.out.println("Enter Email: ");
+                            String email = input.next();
+                            statement.setString(1,newPub);
+                            statement.setString(2,address);
+                            statement.setString(3,phone);
+                            statement.setString(4,email);
+                            statement.setString(5,oriPub);
+                            System.out.println("Finished updating publishers");
+                            statement.close();
+                            statement1.close();
+                        }catch(SQLException ex) {
+                            ex.printStackTrace();
+                        } finally {
+                            //finally block used to close resources
+                            try {
+                                if (rs != null) {
+                                    rs.close();
+                                }
+                            } catch (SQLException se2) {
+                            }// nothing we can do
+                        }
 
                         break;
                     case 9 :
