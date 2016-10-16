@@ -46,4 +46,3 @@ VALUES ('WaterWorld','Harambe','Song',1978,370),
 
 insert into Book (GroupName, BookTitle, PublisherName, YearPublished, NumberPages)
 values ('EarthGalaxy','Harambe', 'Fardation', 2016, 1);
-       

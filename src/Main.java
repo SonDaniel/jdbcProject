@@ -301,8 +301,7 @@ public class Main {
                             sql = "SELECT * FROM Book where BookTitle = ?";
                             PreparedStatement statement = conn.prepareStatement(sql);
                             System.out.print("Enter a Book Title: ");
-                            String userInput = input.next();
-                            input.nextLine(); //clearing nextLine
+                            String userInput = input.nextLine();
 
                             statement.setString(1, userInput);
                             rs = statement.executeQuery();
@@ -431,31 +430,36 @@ public class Main {
                         }
                         break;
                     case 8 :
-                        try{
-                            String sql = "Update Publishers set PublisherName = ?, PublisherAddress = ?, PublisherPhone = ?, PublisherEmail = ? WHERE PublisherName = ?";
+                        try {
+                            String sql = "insert into publisher (publisherName, PublisherAddress, publisherPhone, publisherEmail) values (?,?,?,?)";
                             String sql2 = "Update Book set PublisherName = ? WHERE PublisherName = ?";
                             PreparedStatement statement = conn.prepareStatement(sql);
                             PreparedStatement statement1 = conn.prepareStatement(sql2);
-                            System.out.println("Please enter the publisher to be updated");
-                            String oriPub = input.next();
-                            System.out.println("Finding publisher...");
-                            System.out.println("Please enter the new publisher:");
-                            System.out.println("Enter name: ");
+                            System.out.print("Please enter the publisher to be updated: ");
+                            String oldPub = input.next();
+                            System.out.print("Please enter the new Publisher: ");
                             String newPub = input.next();
-                            statement1.setString(1,newPub);
-                            statement1.setString(2,oriPub);
-                            System.out.println("Enter Publisher Address: ");
+                            statement1.setString(1, newPub);
+                            statement1.setString(2, oldPub);
+
+                            System.out.print("Please enter new Pub address: ");
                             String address = input.next();
-                            System.out.println("Enter Phone: ");
+                            input.nextLine();
+
+                            System.out.print("Please enter new Pub phone: ");
                             String phone = input.next();
-                            System.out.println("Enter Email: ");
+
+                            System.out.print("Please enter new Pub Email: ");
                             String email = input.next();
-                            statement.setString(1,newPub);
-                            statement.setString(2,address);
-                            statement.setString(3,phone);
-                            statement.setString(4,email);
-                            statement.setString(5,oriPub);
-                            System.out.println("Finished updating publishers");
+
+                            statement.setString(1, newPub);
+                            statement.setString(2, address);
+                            statement.setString(3, phone);
+                            statement.setString(4, email);
+
+                            statement.executeUpdate();
+                            statement1.executeUpdate();
+                            System.out.println("Finished updating Publisher");
                             statement.close();
                             statement1.close();
                         }catch(SQLException ex) {
@@ -516,9 +520,8 @@ public class Main {
                         }
                         break;
                     default:
-
+                        System.out.println("Input not a choice.");
                         break;
-
                 }
             } catch(InputMismatchException ex) {
                 System.out.println("Input is invalid. Try again.");
