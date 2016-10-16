@@ -1,4 +1,5 @@
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Scanner;
 //import org.apache.derby.jdbc.ClientDriver;
 import java.util.InputMismatchException;
@@ -40,7 +41,6 @@ public class Main {
         //Constructing the database URL connection string
         DB_URL = DB_URL + DBNAME + ";user=" + USER + ";password=" + PASS;
         Connection conn = null; //initialize the connection
-        Statement stmt = null;  //initialize the statement that we're using
         try {
             //STEP 2: Register JDBC driver
             Class.forName("org.apache.derby.jdbc.ClientDriver");
@@ -49,7 +49,7 @@ public class Main {
             System.out.println("Connecting to database...");
             conn = DriverManager.getConnection(DB_URL);
 
-            startMenu(conn, stmt);
+            startMenu(conn);
 
         } catch (SQLException se) {
             //Handle errors for JDBC
@@ -59,12 +59,6 @@ public class Main {
             e.printStackTrace();
         } finally {
             //finally block used to close resources
-            try {
-                if (stmt != null) {
-                    stmt.close();
-                }
-            } catch (SQLException se2) {
-            }// nothing we can do
             try {
                 if (conn != null) {
                     conn.close();
@@ -76,11 +70,12 @@ public class Main {
         System.out.println("Goodbye!");
     }
 
-    static void startMenu(Connection conn, Statement stmt) {
+    static void startMenu(Connection conn) {
         Scanner input = new Scanner(System.in);
         int choice = -1;
 
         do {
+            Statement stmt = null;
             ResultSet rs = null;
             System.out.println(" ----------------------------------------------------------");
             System.out.println("| 'View all Writing Groups'                            [1] |");
@@ -101,12 +96,10 @@ public class Main {
             try {
                 System.out.print("Choice: ");
                 choice = input.nextInt();
-
-                System.out.println("Creating statement...");
+                input.nextLine();
                 switch(choice) {
                     case 1 :
                         try {
-                            //STEP 4: Execute a query
                             stmt = conn.createStatement();
                             String sql;
                             sql = "SELECT GroupName FROM WritingGroup";
@@ -135,6 +128,13 @@ public class Main {
                                 }
                             } catch (SQLException se2) {
                             }// nothing we can do
+
+                            try {
+                                if (stmt != null) {
+                                    stmt.close();
+                                }
+                            } catch (SQLException se2) {
+                            }// nothing we can do
                         }
 
                         break;
@@ -145,10 +145,12 @@ public class Main {
                             sql = "SELECT * FROM WritingGroup where GroupName = ?";
                             PreparedStatement statement = conn.prepareStatement(sql);
                             System.out.print("Enter a group name: ");
+                            String userInput = input.next();
                             input.nextLine();
-                            String userInput = input.nextLine();
+
                             statement.setString(1, userInput);
                             rs = statement.executeQuery();
+
                             ResultSetMetaData rsmd = rs.getMetaData();
                             int numberOfColumns = rsmd.getColumnCount();
 
@@ -222,8 +224,8 @@ public class Main {
                             sql = "SELECT * FROM Publisher where PublisherName = ?";
                             PreparedStatement statement = conn.prepareStatement(sql);
                             System.out.print("Enter a Publisher's name: ");
+                            String userInput = input.next();
                             input.nextLine();
-                            String userInput = input.nextLine();
                             statement.setString(1, userInput);
                             rs = statement.executeQuery();
                             ResultSetMetaData rsmd = rs.getMetaData();
@@ -299,8 +301,8 @@ public class Main {
                             sql = "SELECT * FROM Book where BookTitle = ?";
                             PreparedStatement statement = conn.prepareStatement(sql);
                             System.out.print("Enter a Book Title: ");
-                            input.nextLine();
                             String userInput = input.nextLine();
+
                             statement.setString(1, userInput);
                             rs = statement.executeQuery();
                             ResultSetMetaData rsmd = rs.getMetaData();
@@ -338,136 +340,126 @@ public class Main {
                     case 7 :
                         // have to check year is valid, have to check valid group name
                         //check publisher name
-                        try{
+                        try {
                             String sql;
                             sql = "insert into Book (GroupName, BookTitle, PublisherName, YearPublished, NumberPages) VALUES( ?, ?, ?, ?, ?)";
-                            String sql2;
-                            sql2 = "Select GroupName, YearFormed from WritingGroup where GroupName = ?";
-                            String sql3;
-                            sql3  = "Select PublisherName from Publisher where PublisherName = ?";
-                            PreparedStatement statement3 = conn.prepareStatement(sql3);
-                            PreparedStatement statement2 = conn.prepareStatement(sql2);
                             PreparedStatement statement = conn.prepareStatement(sql);
-                            System.out.print("Please create a book");
-                            System.out.println("Enter your Book Group Name");
-                            String GroupName = input.next();
-                            statement2.setString(1, GroupName);
-                            //checking group name is valid
+                            System.out.print("Please enter your Book Group name: ");
+                            String groupName = input.next();
+                            input.nextLine();
+                            //Checking to see if GroupName is within Database
+                            String sqlCheck = "SELECT GroupName FROM WritingGroup";
+                            stmt = conn.createStatement();
+                            rs = stmt.executeQuery(sqlCheck);
+                            ArrayList<String> checkList = new ArrayList<>();
 
-                            System.out.println("Please input the Title of the Book");
-                            String BookTitle = input.next();
-                            System.out.println("Please input the Publisher Name");
-                            String PublisherName = input.next();
-                            statement3.setString(1,PublisherName);
-                            //checking publisher name is valid
-                            System.out.println("Please input the Year of Publish");
-                            int YearPublished = 0;
-                            try {
-                                YearPublished = input.nextInt();
-                            }
-                            catch(InputMismatchException e){
-                                System.out.println("Not an integer");
-                                startMenu(conn, stmt);
+                            while(rs.next()) {
+                                checkList.add(rs.getString("GroupName"));
                             }
 
-                            System.out.println("Please input the Number of Pages");
-                            int NumberPages = 0;
-                            try {
-                                NumberPages = input.nextInt();
-                            }
-                            catch(InputMismatchException e){
-                                System.out.println("Please input the Number of Pages");
-                            }
-                            ResultSet rs2 = statement3.executeQuery();
-                            ResultSetMetaData rsmd2 = rs2.getMetaData();
-                            while(rs2.next()) {
-                                try {
-                                    String pubname = rs2.getString(rsmd2.getColumnName(1));
-                                } catch (SQLException e) {
-                                    System.out.println("bad Publisher Name");
-                                    e.printStackTrace();
-                                } finally {
-                                    //finally block used to close resources
-                                    try {
-                                        if (rs != null) {
-                                            rs.close();
-                                        }
-                                    } catch (SQLException se2) {
-                                    }
+                            boolean acceptedGroup = false;
+
+                            for(String name : checkList) {
+                                if(name.equals(groupName)) {
+                                    acceptedGroup = true;
                                 }
                             }
-                            rs = statement2.executeQuery();
-                            ResultSetMetaData rsmd = rs.getMetaData();
-                            while (rs.next()) {
-                                //Retrieve by column name
-                                try {
+                            checkList.clear();
+                            if(acceptedGroup) {
+                                statement.setString(1, groupName); //inserting user input into query
+                                System.out.print("Please enter book Title: ");
+                                String bookTitle = input.nextLine();
+                                statement.setString(2, bookTitle);
 
-                                    String groupName = rs.getString(rsmd.getColumnName(1));
-                                    int yearformed = rs.getInt(rsmd.getColumnName(2));
-                                    if(groupName != GroupName){
-                                        System.out.println("bad group name");
-                                        break;
+                                //getting publisher name from user
+                                System.out.print("Please enter Publisher name: ");
+                                String publisherName = input.next();
+
+                                //checking to see if PublisherName is within Database
+                                sqlCheck = "SELECT PublisherName from Publisher";
+                                rs = stmt.executeQuery(sqlCheck);
+
+                                while(rs.next()) {
+                                    checkList.add(rs.getString("PublisherName"));
+                                }
+
+                                boolean acceptedPublisher = false;
+
+                                for(String publisher : checkList) {
+                                    if(publisher.equals(publisherName)) {
+                                        acceptedPublisher = true;
                                     }
-                                    if(YearPublished >= yearformed ){
-                                        statement.setString(1, GroupName);
-                                        statement.setString(2, BookTitle);
-                                        statement.setString(3, PublisherName);
-                                        statement.setInt(4, YearPublished);
-                                        statement.setInt(5, NumberPages);
+                                }
+
+                                if(acceptedPublisher) {
+                                    statement.setString(3, publisherName);
+
+                                    //getting yearPulished from user
+                                    System.out.print("Please enter Published Year: ");
+                                    try {
+                                        int yearPublished = input.nextInt();
+
+                                        statement.setInt(4, yearPublished);
+
+                                        System.out.print("Please enter number of pages: ");
+                                        int numPages = input.nextInt();
+
+                                        statement.setInt(5, numPages);
+
                                         statement.executeUpdate();
-                                        statement.close();
-                                        System.out.println(BookTitle + " Has been inserted." );
+                                        System.out.println("Book successfully added.");
+                                    } catch(InputMismatchException ex) {
+                                        System.out.println("Input is not an integer.");
                                     }
-                                    else{
-                                        System.out.println("bad year");
-                                        YearPublished = yearformed;
-                                    }
+                                } else {
+                                    System.out.println("PublisherName does not exist");
                                 }
-                                catch(SQLException e){
-                                    System.out.println("bad group name");
-                                    e.printStackTrace();
-                                }
-                                finally {
-                                    //finally block used to close resources
-                                    try {
-                                        if (rs != null) {
-                                            rs.close();
-                                        }
-                                    } catch (SQLException se2) {
-                                    }// nothing we can do
-                                }
+                            } else {
+                                System.out.println("GroupName does not exist");
                             }
-                        }
-                        catch(SQLException ex) {
+                        } catch(SQLException ex) {
                             ex.printStackTrace();
+                        } finally {
+                            //finally block used to close resources
+                            try {
+                                if (rs != null) {
+                                    rs.close();
+                                }
+                            } catch (SQLException se2) {
+                            }// nothing we can do
                         }
                         break;
                     case 8 :
-                        try{
-                            String sql = "Update Publishers set PublisherName = ?, PublisherAddress = ?, PublisherPhone = ?, PublisherEmail = ? WHERE PublisherName = ?";
+                        try {
+                            String sql = "insert into publisher (publisherName, PublisherAddress, publisherPhone, publisherEmail) values (?,?,?,?)";
                             String sql2 = "Update Book set PublisherName = ? WHERE PublisherName = ?";
                             PreparedStatement statement = conn.prepareStatement(sql);
                             PreparedStatement statement1 = conn.prepareStatement(sql2);
-                            System.out.println("Please enter the publisher to be updated");
-                            String oriPub = input.next();
-                            System.out.println("Finding publisher...");
-                            System.out.println("Please enter the new publisher:");
-                            System.out.println("Enter name: ");
+                            System.out.print("Please enter the publisher to be updated: ");
+                            String oldPub = input.next();
+                            System.out.print("Please enter the new Publisher: ");
                             String newPub = input.next();
-                            statement1.setString(1,newPub);
-                            statement1.setString(2,oriPub);
-                            System.out.println("Enter Publisher Address: ");
+                            statement1.setString(1, newPub);
+                            statement1.setString(2, oldPub);
+
+                            System.out.print("Please enter new Pub address: ");
                             String address = input.next();
-                            System.out.println("Enter Phone: ");
+                            input.nextLine();
+
+                            System.out.print("Please enter new Pub phone: ");
                             String phone = input.next();
-                            System.out.println("Enter Email: ");
+
+                            System.out.print("Please enter new Pub Email: ");
                             String email = input.next();
-                            statement.setString(1,newPub);
-                            statement.setString(2,address);
-                            statement.setString(3,phone);
-                            statement.setString(4,email);
-                            statement.setString(5,oriPub);
-                            System.out.println("Finished updating publishers");
+
+                            statement.setString(1, newPub);
+                            statement.setString(2, address);
+                            statement.setString(3, phone);
+                            statement.setString(4, email);
+
+                            statement.executeUpdate();
+                            statement1.executeUpdate();
+                            System.out.println("Finished updating Publisher");
                             statement.close();
                             statement1.close();
                         }catch(SQLException ex) {
@@ -508,12 +500,12 @@ public class Main {
                             String bookChoice = input.next();
                             System.out.print("Group Name associated with that book: ");
                             String groupChoice = input.next();
+                            input.nextLine();
                             String sql2 = "Delete from book where booktitle = ? and groupname = ?";
                             PreparedStatement statement = conn.prepareStatement(sql2);
                             statement.setString(1, bookChoice);
                             statement.setString(2, groupChoice);
                             statement.executeUpdate(); //runs command to execute
-                            statement.close();
                             System.out.println("Book has been deleted");
                         } catch(SQLException ex) {
                             ex.printStackTrace();
@@ -528,9 +520,8 @@ public class Main {
                         }
                         break;
                     default:
-
+                        System.out.println("Input not a choice.");
                         break;
-
                 }
             } catch(InputMismatchException ex) {
                 System.out.println("Input is invalid. Try again.");
