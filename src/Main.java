@@ -497,10 +497,9 @@ public class Main {
                             }
                             System.out.println("Please select the bookTitle and groupName associated to that book to remove.");
                             System.out.print("Book Title: ");
-                            String bookChoice = input.next();
+                            String bookChoice = input.nextLine();
                             System.out.print("Group Name associated with that book: ");
-                            String groupChoice = input.next();
-                            input.nextLine();
+                            String groupChoice = input.nextLine();
                             String sql2 = "Delete from book where booktitle = ? and groupname = ?";
                             PreparedStatement statement = conn.prepareStatement(sql2);
                             statement.setString(1, bookChoice);
